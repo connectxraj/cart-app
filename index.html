@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cart App</title>
+</head>
+<body>
+
+<h2>Add to Cart</h2>
+
+<select id="item">
+  <option value="1">Paracetamol</option>
+  <option value="2">Crocin</option>
+</select><br><br>
+
+<input type="number" id="qty" placeholder="Quantity"><br><br>
+<input type="number" id="discount" placeholder="Discount %"><br><br>
+
+<p>Total: ₹ <span id="total">0</span></p>
+
+<button onclick="submitCart()">Add</button>
+
+<script>
+const MRP = {1:50, 2:80};
+
+const item = document.getElementById("item");
+const qty = document.getElementById("qty");
+const discount = document.getElementById("discount");
+
+[item, qty, discount].forEach(el =>
+  el.addEventListener("input", calculate)
+);
+
+function calculate() {
+  let q = +qty.value || 0;
+  let d = +discount.value || 0;
+  let price = MRP[item.value] * q;
+  let final = price - (price * d / 100);
+  document.getElementById("total").innerText = final.toFixed(2);
+}
+
+function submitCart() {
+  fetch("PASTE_YOUR_WEB_APP_URL_HERE", {
+    method: "POST",
+    body: JSON.stringify({
+      itemId: item.value,
+      qty: qty.value,
+      discount: discount.value,
+      total: document.getElementById("total").innerText
+    })
+  })
+  .then(r => r.json())
+  .then(() => alert("Added to cart"));
+}
+</script>
+
+</body>
+</html>
