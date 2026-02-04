@@ -1,55 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cart App</title>
+  <title>DawaiiX Cart</title>
+  <meta charset="UTF-8">
 </head>
 <body>
 
 <h2>Add to Cart</h2>
 
-<select id="item">
-  <option value="1">Paracetamol</option>
-  <option value="2">Crocin</option>
-</select><br><br>
+<label>Product</label><br>
+<select id="product">
+  <option value="Crocin">Crocin</option>
+  <option value="Paracetamol">Paracetamol</option>
+</select>
+<br><br>
 
-<input type="number" id="qty" placeholder="Quantity"><br><br>
-<input type="number" id="discount" placeholder="Discount %"><br><br>
+<label>MRP</label><br>
+<input type="number" id="mrp" value="60" oninput="calculateTotal()">
+<br><br>
 
-<p>Total: ₹ <span id="total">0</span></p>
+<label>Quantity</label><br>
+<input type="number" id="qty" value="1" oninput="calculateTotal()">
+<br><br>
 
-<button onclick="submitCart()">Add</button>
+<label>Discount %</label><br>
+<input type="number" id="discount" value="0" oninput="calculateTotal()">
+<br><br>
+
+<p><b>Total: ₹ <span id="total">60.00</span></b></p>
+
+<button onclick="submitCart()">Add to Cart</button>
 
 <script>
-const MRP = {1:50, 2:80};
+function calculateTotal() {
+  const mrp = Number(document.getElementById("mrp").value);
+  const qty = Number(document.getElementById("qty").value);
+  const discount = Number(document.getElementById("discount").value);
 
-const item = document.getElementById("item");
-const qty = document.getElementById("qty");
-const discount = document.getElementById("discount");
+  const discountedPrice = mrp - (mrp * discount / 100);
+  const total = discountedPrice * qty;
 
-[item, qty, discount].forEach(el =>
-  el.addEventListener("input", calculate)
-);
-
-function calculate() {
-  let q = +qty.value || 0;
-  let d = +discount.value || 0;
-  let price = MRP[item.value] * q;
-  let final = price - (price * d / 100);
-  document.getElementById("total").innerText = final.toFixed(2);
+  document.getElementById("total").innerText = total.toFixed(2);
 }
 
 function submitCart() {
-  fetch("PASTE_YOUR_WEB_APP_URL_HERE", {
+  const payload = {
+    cartId: "CART-" + Date.now(),
+    userEmail: "guest@dawaiix.com",
+    productName: document.getElementById("product").value,
+    companyName: "",
+    subCategory: "",
+    mrp: Number(document.getElementById("mrp").value),
+    discount: Number(document.getElementById("discount").value),
+    price: Number(document.getElementById("total").innerText),
+    quantity: Number(document.getElementById("qty").value)
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbwuFPfj4enaT5MBT5XubBBaviu9yo5GXa7z7na3N19EyIdhQC_m_nnuDdiLMtCIgdZw/exec", {
     method: "POST",
-    body: JSON.stringify({
-      itemId: item.value,
-      qty: qty.value,
-      discount: discount.value,
-      total: document.getElementById("total").innerText
-    })
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
   })
-  .then(r => r.json())
-  .then(() => alert("Added to cart"));
+  .then(() => {
+    alert("✅ Item added to cart");
+  })
+  .catch(() => {
+    alert("❌ Server error");
+  });
 }
 </script>
 
