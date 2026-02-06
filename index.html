@@ -1,76 +1,781 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DawaiiX Cart</title>
+  <base target="_top">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DawaiiX Mart - Shop</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 0;
+      margin: 0;
+      color: #333;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0;
+      background: white;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+
+    .cart-btn {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.2);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .cart-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-50%) translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .cart-count {
+      background: #28a745;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+
+    .filters {
+      padding: 20px 30px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e9ecef;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+      position: fixed;
+      top: 140px;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9em;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-clear {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-clear:hover {
+      background: #5a6268;
+    }
+
+    .products-container {
+      padding: 30px;
+      min-height: 400px;
+      margin-top: 280px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px;
+      font-size: 1.2em;
+      color: #6c757d;
+    }
+
+    .stats {
+      padding: 15px 30px;
+      background: #f8f9fa;
+      text-align: center;
+      font-weight: 600;
+      color: #495057;
+      position: fixed;
+      top: 260px;
+      left: 0;
+      right: 0;
+      z-index: 98;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .product-card {
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      border-color: #667eea;
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+
+    .product-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #28a745;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+
+    .product-name {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      min-height: 50px;
+    }
+
+    .product-company {
+      color: #667eea;
+      font-size: 0.9em;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .product-category {
+      display: inline-block;
+      background: #f1f3f5;
+      color: #495057;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 0.85em;
+      margin-bottom: 12px;
+    }
+
+    .product-pricing {
+      margin: 15px 0;
+      padding: 15px 0;
+      border-top: 1px solid #e9ecef;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .price-label {
+      color: #6c757d;
+      font-size: 0.85em;
+    }
+
+    .original-price {
+      text-decoration: line-through;
+      color: #adb5bd;
+      font-size: 0.9em;
+    }
+
+    .current-price {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    .discount {
+      color: #dc3545;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    .moq-info {
+      font-size: 0.85em;
+      color: #6c757d;
+      margin-bottom: 15px;
+      padding: 8px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .quantity-control button {
+      width: 35px;
+      height: 35px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 50%;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantity-control button:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .quantity-control input {
+      width: 60px;
+      text-align: center;
+      padding: 8px;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+    }
+
+    .add-to-cart-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .add-to-cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    }
+
+    .add-to-cart-btn:active {
+      transform: translateY(0);
+    }
+
+    .no-products {
+      text-align: center;
+      padding: 50px;
+      color: #6c757d;
+    }
+
+    .no-products-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      background: #28a745;
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+      max-width: 300px;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .notification.error {
+      background: #dc3545;
+    }
+
+    @media (max-width: 768px) {
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        flex-direction: column;
+        top: 180px;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .cart-btn {
+        position: static;
+        transform: none;
+        margin-top: 15px;
+        justify-content: center;
+      }
+
+      .cart-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .stats {
+        top: 380px;
+      }
+
+      .products-container {
+        margin-top: 410px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <div class="header">
+      <h1>🛒 DawaiiX Mart</h1>
+      <p>Your One-Stop Healthcare & Wellness Shop</p>
+      <p>Call for Order on 9582613160 / 9555013381 / 8595316534 / 9971422442 </p>
+      <a href="#" onclick="goToCart(); return false;" class="cart-btn">
+        
+        <span class="cart-count" id="cartCount">0</span>
+      </a>
+    </div>
 
-<h2>Add to Cart</h2>
+    <div class="filters">
+      <div class="filter-group">
+        <label for="searchInput">🔍 Search Products</label>
+        <input type="text" id="searchInput" placeholder="Search by product name...">
+      </div>
+      
+      <div class="filter-group">
+        <label for="categoryFilter">📦 Category</label>
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="companyFilter">🏢 Company</label>
+        <select id="companyFilter">
+          <option value="">All Companies</option>
+        </select>
+      </div>
+      
+      <div style="display: flex; gap: 10px; align-items: flex-end;">
+        <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+        <button class="btn btn-clear" onclick="clearFilters()">Clear</button>
+      </div>
+    </div>
 
-<label>Product</label><br>
-<select id="product">
-  <option value="Crocin">Crocin</option>
-  <option value="Paracetamol">Paracetamol</option>
-</select>
-<br><br>
+    <div class="stats" id="stats">
+      Loading products...
+    </div>
 
-<label>MRP</label><br>
-<input type="number" id="mrp" value="60" oninput="calculateTotal()">
-<br><br>
+    <div class="products-container">
+      <div class="loading" id="loading">
+        <div>⏳ Loading products...</div>
+      </div>
+      <div class="products-grid" id="productsGrid" style="display: none;"></div>
+      <div class="no-products" id="noProducts" style="display: none;">
+        <div class="no-products-icon">📦</div>
+        <h3>No products found</h3>
+        <p>Try adjusting your filters or search terms</p>
+      </div>
+    </div>
+  </div>
 
-<label>Quantity</label><br>
-<input type="number" id="qty" value="1" oninput="calculateTotal()">
-<br><br>
+  <script>
+    let allProducts = [];
+    let filteredProducts = [];
+    let userEmail = '';
 
-<label>Discount %</label><br>
-<input type="number" id="discount" value="0" oninput="calculateTotal()">
-<br><br>
+    // Load products on page load
+    window.onload = function() {
+      loadUserInfo();
+      loadProducts();
+      updateCartCount();
+    };
 
-<p><b>Total: ₹ <span id="total">60.00</span></b></p>
+    function loadUserInfo() {
+      google.script.run
+        .withSuccessHandler(function(email) {
+          userEmail = email;
+          console.log('User email loaded:', userEmail);
+        })
+        .getUserEmail();
+    }
 
-<button onclick="submitCart()">Add to Cart</button>
+    function loadProducts() {
+      google.script.run
+        .withSuccessHandler(function(products) {
+          allProducts = products;
+          filteredProducts = products;
+          populateFilters();
+          displayProducts(products);
+          updateStats();
+        })
+        .withFailureHandler(function(error) {
+          showNotification('Error loading products: ' + error, 'error');
+          document.getElementById('loading').innerHTML = 
+            '<div style="color: #dc3545;">❌ Error loading products. Please refresh the page.</div>';
+        })
+        .getProducts();
+    }
 
-<script>
-function calculateTotal() {
-  const mrp = Number(document.getElementById("mrp").value);
-  const qty = Number(document.getElementById("qty").value);
-  const discount = Number(document.getElementById("discount").value);
+    function updateCartCount() {
+      if (!userEmail) {
+        setTimeout(updateCartCount, 500);
+        return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(items) {
+          const totalItems = items.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0);
+          document.getElementById('cartCount').textContent = totalItems;
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading cart count:', error);
+        })
+        .getCartItems(userEmail);
+    }
 
-  const discountedPrice = mrp - (mrp * discount / 100);
-  const total = discountedPrice * qty;
+    function populateFilters() {
+      // Populate categories
+      const categories = [...new Set(allProducts.map(p => p.subCategory))].filter(c => c).sort();
+      const categorySelect = document.getElementById('categoryFilter');
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+      });
 
-  document.getElementById("total").innerText = total.toFixed(2);
-}
+      // Populate companies
+      const companies = [...new Set(allProducts.map(p => p.companyName))].filter(c => c).sort();
+      const companySelect = document.getElementById('companyFilter');
+      companies.forEach(comp => {
+        const option = document.createElement('option');
+        option.value = comp;
+        option.textContent = comp;
+        companySelect.appendChild(option);
+      });
+    }
 
-function submitCart() {
-  const payload = {
-    cartId: "CART-" + Date.now(),
-    userEmail: "guest@dawaiix.com",
-    productName: document.getElementById("product").value,
-    companyName: "",
-    subCategory: "",
-    mrp: Number(document.getElementById("mrp").value),
-    discount: Number(document.getElementById("discount").value),
-    price: Number(document.getElementById("total").innerText),
-    quantity: Number(document.getElementById("qty").value)
-  };
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const category = document.getElementById('categoryFilter').value;
+      const company = document.getElementById('companyFilter').value;
 
-  fetch("https://script.google.com/macros/s/AKfycbzidc3o-3gd9fO0-dJTdpV54Y878m9c2Ak46Jry5FKrF5W06Cl5vJvBon2Ngaop0qFVqA/exec", {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-  .then(() => {
-    alert("✅ Item added to cart");
-  })
-  .catch(() => {
-    alert("❌ Server error");
-  });
-}
-</script>
+      filteredProducts = allProducts.filter(product => {
+        const matchesSearch = product.productName.toLowerCase().includes(searchTerm);
+        const matchesCategory = !category || product.subCategory === category;
+        const matchesCompany = !company || product.companyName === company;
+        return matchesSearch && matchesCategory && matchesCompany;
+      });
 
+      displayProducts(filteredProducts);
+      updateStats();
+    }
+
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categoryFilter').value = '';
+      document.getElementById('companyFilter').value = '';
+      filteredProducts = allProducts;
+      displayProducts(allProducts);
+      updateStats();
+    }
+
+    function updateStats() {
+      const stats = document.getElementById('stats');
+      stats.textContent = `Showing ${filteredProducts.length} of ${allProducts.length} products`;
+    }
+
+    function displayProducts(products) {
+      const loading = document.getElementById('loading');
+      const grid = document.getElementById('productsGrid');
+      const noProducts = document.getElementById('noProducts');
+
+      loading.style.display = 'none';
+
+      if (products.length === 0) {
+        grid.style.display = 'none';
+        noProducts.style.display = 'block';
+        return;
+      }
+
+      noProducts.style.display = 'none';
+      grid.style.display = 'grid';
+      grid.innerHTML = '';
+
+      products.forEach(product => {
+        const card = createProductCard(product);
+        grid.appendChild(card);
+      });
+    }
+
+    function createProductCard(product) {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      const discount = parseFloat(product.discount) || 0;
+      const moq = product.consumerMOQ || 1;
+
+      card.innerHTML = `
+        ${discount > 0 ? `<div class="product-badge">${discount}% OFF</div>` : ''}
+        
+        <div class="product-name">${product.productName}</div>
+        <div class="product-company">🏢 ${product.companyName}</div>
+        <div class="product-category">${product.subCategory}</div>
+        
+        <div class="product-pricing">
+          <div class="price-row">
+            <span class="price-label">MRP:</span>
+            <span class="original-price">₹${parseFloat(product.mrp).toFixed(2)}</span>
+          </div>
+          <div class="price-row">
+            <span class="price-label">Your Price:</span>
+            <span class="current-price">₹${parseFloat(product.price).toFixed(2)}</span>
+          </div>
+          ${discount > 0 ? `
+          <div class="price-row">
+            <span class="price-label">You Save:</span>
+            <span class="discount">₹${(parseFloat(product.mrp) - parseFloat(product.price)).toFixed(2)}</span>
+          </div>
+          ` : ''}
+        </div>
+
+        <div class="moq-info">
+          📦 Minimum Order: ${moq} ${product.units}
+        </div>
+
+        <div class="quantity-control">
+          <button onclick="decreaseQuantity(this)">−</button>
+          <input type="number" value="${moq}" min="${moq}" step="${moq}" class="quantity-input">
+          <button onclick="increaseQuantity(this, ${moq})">+</button>
+        </div>
+
+        <button class="add-to-cart-btn" onclick='addToCart(${JSON.stringify(product)}, this)'>
+          🛒 Add to Cart
+        </button>
+      `;
+
+      return card;
+    }
+
+    function increaseQuantity(btn, moq) {
+      const input = btn.parentElement.querySelector('.quantity-input');
+      input.value = parseInt(input.value) + moq;
+    }
+
+    function decreaseQuantity(btn) {
+      const input = btn.parentElement.querySelector('.quantity-input');
+      const moq = parseInt(input.min);
+      if (parseInt(input.value) > moq) {
+        input.value = parseInt(input.value) - moq;
+      }
+    }
+
+    function addToCart(product, btn) {
+      const card = btn.closest('.product-card');
+      const quantity = parseInt(card.querySelector('.quantity-input').value);
+
+      // Check if userEmail is available
+      if (!userEmail || userEmail === '') {
+        showNotification('❌ Unable to get user email. Please refresh the page.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Adding...';
+
+      // Generate unique cart ID
+      const cartId = generateCartId();
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          btn.disabled = false;
+          btn.textContent = '🛒 Add to Cart';
+          
+          if (response.success) {
+            showNotification('✅ ' + response.message, 'success');
+            // Reset quantity to MOQ
+            card.querySelector('.quantity-input').value = product.consumerMOQ || 1;
+            // Update cart count
+            updateCartCount();
+          } else {
+            showNotification('❌ ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.disabled = false;
+          btn.textContent = '🛒 Add to Cart';
+          showNotification('❌ Error: ' + error, 'error');
+        })
+        .addToCart(
+          cartId,
+          userEmail,
+          product.productName,
+          product.companyName,
+          product.subCategory,
+          parseFloat(product.mrp),
+          parseFloat(product.discount),
+          parseFloat(product.price),
+          quantity
+        );
+    }
+
+    // Helper function to generate unique cart ID
+    function generateCartId() {
+      return Math.random().toString(36).substr(2, 9);
+    }
+
+    function goToCart() {
+      google.script.run
+        .withSuccessHandler(function(url) {
+          window.location.href = url;
+        })
+        .getCartUrl();
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    // Add enter key support for search
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          applyFilters();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
-
